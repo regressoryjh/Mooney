@@ -1,6 +1,9 @@
 package com.mooney.charlie
 
-import java.util.UUID
+import java.text.NumberFormat
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.math.absoluteValue
 
 // 1. Data Class Definition
 data class FinancialEntry(
@@ -17,13 +20,34 @@ enum class EntryType {
     OUTCOME
 }
 
-// 2. Dummy Data List
+// 2. Formatting Helpers
+// Use Indonesian Rupiah format
+private val currencyFormat = NumberFormat.getCurrencyInstance(Locale("id", "ID")).apply {
+    maximumFractionDigits = 0
+}
+
+/** Formats a Long amount into Indonesian Rupiah (e.g., "Rp 15.000.000") */
+fun formatRupiah(amount: Long): String {
+    return currencyFormat.format(amount.absoluteValue)
+}
+
+/** Gets the current date formatted as YYYY-MM-DD */
+fun getCurrentDate(): String {
+    return SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())
+}
+
+/** Gets the current month and year formatted as YYYY-MM */
+fun getCurrentMonthYear(): String {
+    return SimpleDateFormat("yyyy-MM", Locale.getDefault()).format(Date())
+}
+
+// 3. Dummy Data List
 val BudgetEntries = listOf(
     FinancialEntry(
         type = EntryType.INCOME,
         category = "Salary",
         date = "2025-10-01",
-        amount = 15_000_000,
+        amount = 5_000_000,
         note = "Monthly Salary Deposit"
     ),
     FinancialEntry(
@@ -317,7 +341,7 @@ val BudgetEntries = listOf(
         type = EntryType.INCOME,
         category = "Salary",
         date = "2025-11-01",
-        amount = 15_000_000,
+        amount = 5_000_000,
         note = "Monthly Salary Deposit"
     ),
     FinancialEntry(
@@ -443,7 +467,7 @@ val BudgetEntries = listOf(
         type = EntryType.INCOME,
         category = "Bonus",
         date = "2025-11-16",
-        amount = 2_000_000,
+        amount = 1_000_000,
         note = "Project completion bonus"
     ),
     FinancialEntry(
@@ -509,12 +533,57 @@ val BudgetEntries = listOf(
         amount = 200_000,
         note = "Cable TV and Internet upgrade"
     ),
+
+    // ⭐ Today's entries (2025-11-25) - This will be displayed in Recent Transactions
     FinancialEntry(
         type = EntryType.OUTCOME,
         category = "Household",
         date = "2025-11-25",
         amount = 70_000,
         note = "Weekly cleaning service tip"
+    ),
+    FinancialEntry(
+        type = EntryType.OUTCOME,
+        category = "Household",
+        date = "2025-11-25",
+        amount = 70_000,
+        note = "Weekly cleaning service tip"
+    ),
+    FinancialEntry(
+        type = EntryType.OUTCOME,
+        category = "Food & Drink",
+        date = "2025-11-25",
+        amount = 52_000,
+        note = "Lunch and a drink"
+    ),
+    FinancialEntry(
+        type = EntryType.OUTCOME,
+        category = "Transport",
+        date = "2025-11-25",
+        amount = 10_000,
+        note = "Public transport ticket"
+    ),
+    // End of Today's entries (2025-11-25)
+    FinancialEntry(
+        type = EntryType.OUTCOME,
+        category = "Shopping",
+        date = "2025-11-28",
+        amount = 950_000,
+        note = "Clothing for an event"
+    ),
+    FinancialEntry(
+        type = EntryType.OUTCOME,
+        category = "Food & Drink",
+        date = "2025-11-29",
+        amount = 180_000,
+        note = "Fancy restaurant dinner"
+    ),
+    FinancialEntry(
+        type = EntryType.INCOME,
+        category = "Freelance",
+        date = "2025-11-30",
+        amount = 1_000_000,
+        note = "Small consulting payment"
     ),
     FinancialEntry(
         type = EntryType.OUTCOME,
@@ -552,3 +621,28 @@ val BudgetEntries = listOf(
         note = "Small consulting payment"
     )
 )
+
+// Add On - Keeping the list structures for future use (e.g., charts)
+val dailyExpensesList: List<Pair<String, Float>> =
+    BudgetEntries.groupBy { it.date }
+        .map { entry ->
+            val total = entry.value.sumOf { it.amount }
+            entry.key to total.toFloat()
+        }
+        .sortedBy { it.first }
+
+val monthlyExpensesList: List<Pair<String, Float>> =
+    BudgetEntries.groupBy { it.date.substring(0, 7) } // YYYY-MM
+        .map { entry ->
+            val total = entry.value.sumOf { it.amount }
+            entry.key to total.toFloat()
+        }
+        .sortedBy { it.first }
+
+val yearlyExpensesList: List<Pair<String, Float>> =
+    BudgetEntries.groupBy { it.date.substring(0, 4) } // YYYY
+        .map { entry ->
+            val total = entry.value.sumOf { it.amount }
+            entry.key to total.toFloat()
+        }
+        .sortedBy { it.first }

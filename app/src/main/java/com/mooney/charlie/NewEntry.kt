@@ -2,6 +2,7 @@
 
 package com.mooney.charlie
 
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.foundation.layout.*
@@ -25,11 +26,11 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun NewEntry(navController: NavHostController) {
 //    val viewModel: HomeViewModel = viewModel()
-    Surface(
-        color = MaterialTheme.colorScheme.secondaryContainer,
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.secondaryContainer,
         modifier = Modifier.fillMaxSize()
-    ) {
-        Column {
+    ) { paddingValues ->
+        Column (modifier = Modifier.padding(paddingValues)) {
             // Header
             Text(
                 text = "New Entry",
@@ -83,13 +84,11 @@ fun NewEntryForm(
         }
     }
 
-    Scaffold(
-        topBar = { TopAppBar(title = { Text("Add New Transaction") }) },
-        modifier = modifier
-    ) { paddingValues ->
+    Surface (
+        color = MaterialTheme.colorScheme.secondaryContainer
+    ) {
         Column(
             modifier = Modifier
-                .padding(paddingValues)
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,

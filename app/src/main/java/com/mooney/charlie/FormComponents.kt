@@ -28,6 +28,7 @@ import java.util.Calendar
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.ui.graphics.Color
 
 
 // ui/components/FormComponents.kt
@@ -46,8 +47,10 @@ fun TypeToggleButton(
             OutlinedButton(
                 onClick = { onTypeSelected(type) },
                 colors = ButtonDefaults.outlinedButtonColors(
-                    containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
-                    contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
+//                    containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
+//                    contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
+                    containerColor = if (isSelected) Color(0xFF4A588B) else MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = if (isSelected) MaterialTheme.colorScheme.onTertiary else MaterialTheme.colorScheme.onPrimaryContainer
                 ),
                 modifier = Modifier.weight(1f)
             ) {

@@ -37,7 +37,12 @@ fun NavGraph(navController: NavHostController, modifier: Modifier) {
         composable (
             route = Destinations.BUDGET
         ) {
-            BudgetPage (navController)
+            BudgetPage(navController)
+                // new addition
+//                dailyData = dailyExpensesList,
+//                monthlyData = monthlyExpensesList,
+//                yearlyData = yearlyExpensesList
+//            )
         }
 
         // 4. NewEntry route
