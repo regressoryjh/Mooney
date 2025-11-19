@@ -1,0 +1,139 @@
+package com.mooney.charlie
+
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircleOutline
+import androidx.compose.material.icons.filled.AccountBalanceWallet
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.History
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarDefaults
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+
+// Define the items that will appear in the Bottom Navigation Bar
+enum class BottomNavDestination(
+    val route: String,
+    val icon: ImageVector,
+    val label: String
+) {
+    HOME(
+        route = Destinations.HOME,
+        icon = Icons.Filled.Home,
+        label = "Home"
+    ),
+    HISTORY(
+        route = Destinations.HISTORY,
+        icon = Icons.Filled.History,
+        label = "History"
+    ),
+    BUDGET(
+        route = Destinations.BUDGET,
+        icon = Icons.Filled.AccountBalanceWallet,
+        label = "Budget"
+    ),
+    NEW(
+        route = Destinations.NEW,
+        icon = Icons.Filled.AddCircleOutline,
+        label = "New"
+    )
+}
+
+
+
+@Composable
+fun NavigationBar(modifier: Modifier = Modifier) {
+    val navController = rememberNavController()
+    // Set the start destination using the enum
+    val startDestination = BottomNavDestination.HOME
+
+    // We track the index of the currently selected destination
+    var selectedDestinationIndex by rememberSaveable {
+        mutableIntStateOf(BottomNavDestination.entries.indexOf(startDestination))
+    }
+
+    // ⭐ LANGKAH 2A: Dapatkan entry back stack saat ini sebagai State
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+    // ⭐ 1. Tentukan apakah Bottom Bar harus ditampilkan
+    val showBottomBar = currentRoute in listOf(
+        Destinations.HOME,
+        Destinations.HISTORY,
+        Destinations.BUDGET
+        // Destinations.NEW TIDAK ADA di sini, jadi Bottom Bar akan disembunyikan di halaman ini
+    )
+
+    // ⭐ LANGKAH 2B: Gunakan LaunchedEffect untuk memperbarui index saat rute berubah
+    LaunchedEffect(currentRoute) {
+        // Cari BottomNavDestination yang rutenya cocok dengan rute saat ini
+        val destination = BottomNavDestination.entries.find { it.route == currentRoute }
+        destination?.let {
+            // Jika ditemukan, perbarui index sorotan
+            selectedDestinationIndex = BottomNavDestination.entries.indexOf(it)
+        }
+    }
+
+    Scaffold(
+        modifier = modifier,
+        bottomBar = {
+            AnimatedVisibility(
+                visible = showBottomBar,
+                // These animations should roughly match typical navigation speeds (e.g., 300ms)
+                enter = slideInVertically(animationSpec = tween(200)) { it } + fadeIn(animationSpec = tween(200)),
+                exit = slideOutVertically(animationSpec = tween(200)) { it } + fadeOut(animationSpec = tween(200))
+            ){
+                NavigationBar(windowInsets = NavigationBarDefaults.windowInsets) {
+                    BottomNavDestination.entries.forEachIndexed { index, destination ->
+                        NavigationBarItem(
+                            // Gunakan status yang DIPERBARUI oleh LaunchedEffect
+                            selected = selectedDestinationIndex == index,
+                            onClick = {
+                                // Navigasi saat item Bottom Bar diklik
+                                if (selectedDestinationIndex != index) {
+                                    navController.navigate(route = destination.route) {
+                                        // Logika popUpTo dan launchSingleTop
+                                        popUpTo(navController.graph.startDestinationId) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                    // TIDAK perlu mengupdate selectedDestinationIndex di sini,
+                                    // LaunchedEffect akan melakukannya secara otomatis.
+                                }
+                            },
+                            icon = {
+                                Icon(
+                                    destination.icon,
+                                    contentDescription = destination.label // Use label as content description
+                                )
+                            },
+                            label = { Text(destination.label) }
+                        )
+                    }
+                }
+            }
+        }
+    ) { contentPadding ->
+        // Call your existing NavGraph here
+        NavGraph(
+            navController = navController,
+            modifier = Modifier.padding(contentPadding) // Apply padding to avoid content being under the bar
+        )
+    }
+}
