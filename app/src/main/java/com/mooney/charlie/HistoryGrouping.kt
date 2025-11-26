@@ -1,5 +1,7 @@
 package com.mooney.charlie
 
+import com.mooney.charlie.data.FinancialEntry
+
 // Digunakan untuk menampilkan data di HistoryPage, dikelompokkan per tanggal
 data class HistoryGroup(
     val date: String,

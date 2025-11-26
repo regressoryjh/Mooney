@@ -51,7 +51,7 @@ fun HistoryPage(
         Column(modifier = Modifier.padding(paddingValues)) {
 
 //            // 1. Filtering Tool Placeholder
-//            // TODO: Ganti ini dengan Dropdown/DatePicker untuk filter
+//            // TODO IN FUTURE: Ganti ini dengan Dropdown/DatePicker untuk filter
 //            Card(
 //                modifier = Modifier
 //                    .fillMaxWidth()

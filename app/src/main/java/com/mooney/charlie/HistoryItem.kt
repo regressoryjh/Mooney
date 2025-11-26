@@ -1,8 +1,14 @@
 package com.mooney.charlie
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -10,6 +16,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mooney.charlie.data.EntryType
+import com.mooney.charlie.data.FinancialEntry
 //import com.mooney.charlie.data.EntryType
 //import com.mooney.charlie.data.FinancialEntry
 import java.text.NumberFormat
@@ -17,6 +25,9 @@ import java.util.Locale
 
 @Composable
 fun HistoryItem(entry: FinancialEntry) {
+
+    var showMenu by remember { mutableStateOf(false) }
+
     // Tentukan warna berdasarkan tipe
     val amountColor = when (entry.type) {
         EntryType.INCOME -> Color(0xFF388E3C) // Hijau gelap (contoh)
@@ -64,6 +75,39 @@ fun HistoryItem(entry: FinancialEntry) {
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.End
         )
+        // Options Icon (MoreVert) and Dropdown Menu
+        Box {
+            IconButton(
+                onClick = { showMenu = true },
+                modifier = Modifier.size(28.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.MoreVert,
+                    contentDescription = "Options menu",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            DropdownMenu(
+                expanded = showMenu,
+                onDismissRequest = { showMenu = false }
+            ) {
+                DropdownMenuItem(
+                    text = { Text("Edit") },
+                    onClick = {
+                        // TODO: Implement Edit logic here (e.g., navigate to edit screen)
+                        showMenu = false
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("Delete") },
+                    onClick = {
+                        // TODO: Implement Delete logic here (e.g., show confirmation dialog)
+                        showMenu = false
+                    }
+                )
+            }
+        }
     }
     // Opsional: Divider di bawah setiap item
     Divider(color = MaterialTheme.colorScheme.surfaceVariant, thickness = 0.5.dp)

@@ -5,12 +5,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 // FIX: Uncommented imports for data
-import com.mooney.charlie.BudgetEntries
-import com.mooney.charlie.EntryType
+import com.mooney.charlie.data.BudgetEntries
+import com.mooney.charlie.data.EntryType
 import java.time.LocalDate
 import java.time.temporal.TemporalAdjusters
 import java.time.temporal.ChronoUnit
-import kotlin.math.absoluteValue
 
 data class DailySpendData(
     val date: LocalDate,

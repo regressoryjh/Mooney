@@ -2,6 +2,8 @@ package com.mooney.charlie
 
 
 import androidx.lifecycle.ViewModel
+import com.mooney.charlie.data.BudgetEntries
+import com.mooney.charlie.data.EntryType
 //import com.mooney.charlie.data.BudgetEntries // Asumsi ini adalah list data dummy Anda
 //import com.mooney.charlie.data.FinancialEntry
 //import com.mooney.charlie.data.HistoryGroup
@@ -11,7 +13,6 @@ import kotlinx.coroutines.flow.asStateFlow
 
 // Tambahkan impor untuk date/time handling
 import java.time.LocalDate
-import java.util.UUID
 
 class HistoryViewModel : ViewModel() {
 
