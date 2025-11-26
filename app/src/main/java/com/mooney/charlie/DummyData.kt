@@ -1,4 +1,4 @@
-package com.mooney.charlie.data
+package com.mooney.charlie
 
 import java.text.NumberFormat
 import java.text.SimpleDateFormat

@@ -18,7 +18,7 @@ object Destinations {
 fun NavGraph(navController: NavHostController, modifier: Modifier) {
     NavHost(
         navController = navController,
-        startDestination = Destinations.HOME
+        startDestination = Destinations.HISTORY
     ) {
         // 1. HomePage route
         composable (
@@ -37,7 +37,7 @@ fun NavGraph(navController: NavHostController, modifier: Modifier) {
         composable (
             route = Destinations.BUDGET
         ) {
-            BudgetPage(navController)
+            BudgetPage (navController)
                 // new addition
 //                dailyData = dailyExpensesList,
 //                monthlyData = monthlyExpensesList,

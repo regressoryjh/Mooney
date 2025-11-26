@@ -4,12 +4,14 @@ package com.mooney.charlie
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -25,11 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.mooney.charlie.data.BudgetEntries
-import com.mooney.charlie.data.EntryType
-import com.mooney.charlie.data.formatRupiah
-import com.mooney.charlie.data.getCurrentDate
-import com.mooney.charlie.data.getCurrentMonthYear
+import kotlin.math.absoluteValue
 
 // Define a map for clean category-to-color mapping for the Spending Overview chart.
 // Using a curated set of distinct colors for better visual separation in the donut chart.
@@ -339,8 +337,7 @@ fun HomePage(navController: NavHostController) {
                                     category = entry.category,
                                     totalAmount = formatRupiah(entry.amount),
                                     // Item represents the note/description
-                                    items = listOf(TransactionDetailItem(entry.note,
-                                        formatRupiah(entry.amount), entry.type.toString()))
+                                    items = listOf(TransactionDetailItem(entry.note, formatRupiah(entry.amount), entry.type.toString()))
                                 )
 
                                 // ⭐ CHANGED: Using the new non-expandable component
@@ -510,7 +507,7 @@ fun BalanceCard(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 20.dp, vertical = 12.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
+            horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(

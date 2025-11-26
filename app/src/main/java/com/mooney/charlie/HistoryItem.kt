@@ -16,8 +16,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mooney.charlie.data.EntryType
-import com.mooney.charlie.data.FinancialEntry
 //import com.mooney.charlie.data.EntryType
 //import com.mooney.charlie.data.FinancialEntry
 import java.text.NumberFormat
@@ -75,7 +73,9 @@ fun HistoryItem(entry: FinancialEntry) {
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.End
         )
-        // Options Icon (MoreVert) and Dropdown Menu
+
+        Spacer(modifier = Modifier.width(8.dp))
+
         Box {
             IconButton(
                 onClick = { showMenu = true },
