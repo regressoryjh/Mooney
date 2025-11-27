@@ -29,6 +29,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.OutlinedTextFieldDefaults
 
 
 // ui/components/NewEntryComponents.kt
@@ -39,6 +41,13 @@ fun TypeToggleButton(
     onTypeSelected: (EntryType) -> Unit,
     readOnly: Boolean = false
 ) {
+    val isDark = isSystemInDarkTheme()
+    // Determine the active color based on theme, matching BalanceCard
+    // Dark Mode: Use PrimaryContainer (Dark Green)
+    // Light Mode: Use Primary (Green)
+    val activeContainerColor = if (isDark) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.primary
+    val activeContentColor = if (isDark) Color.White else MaterialTheme.colorScheme.onPrimary
+
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -48,17 +57,17 @@ fun TypeToggleButton(
             // If readOnly is true, determine colors based on whether this button is the selected one.
             // The unselected button will get a "disabled" look.
             val containerColor = if (readOnly) {
-                if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.5f) // Grayed out selected
+                if (isSelected) activeContainerColor.copy(alpha = 0.5f) // Grayed out selected
                 else MaterialTheme.colorScheme.background // Screen background color for unselected read-only
             } else {
-                if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.background // Screen background for unselected
+                if (isSelected) activeContainerColor else MaterialTheme.colorScheme.background // Screen background for unselected
             }
 
             val contentColor = if (readOnly) {
-                if (isSelected) MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
+                if (isSelected) activeContentColor.copy(alpha = 0.7f)
                 else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
             } else {
-                if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+                if (isSelected) activeContentColor else MaterialTheme.colorScheme.onSurface
             }
 
             OutlinedButton(
@@ -89,6 +98,9 @@ fun CategoryDropdownMenu(
 ) {
     var expanded by remember { mutableStateOf(false) }
 
+    val isDark = isSystemInDarkTheme()
+    val activeColor = if (isDark) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.primary
+
     ExposedDropdownMenuBox(
         expanded = expanded,
         onExpandedChange = { expanded = !expanded },
@@ -100,6 +112,11 @@ fun CategoryDropdownMenu(
             readOnly = true,
             label = { Text("Category") },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = activeColor,
+                focusedLabelColor = activeColor,
+                cursorColor = activeColor
+            ),
             modifier = Modifier
                 .menuAnchor()
                 .fillMaxWidth()

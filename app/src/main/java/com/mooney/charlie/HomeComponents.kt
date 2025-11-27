@@ -60,13 +60,15 @@ fun BalanceCard(
     // Light Mode: Use Primary (Deep Green)
     // Dark Mode: Use PrimaryContainer (Dark Green) to avoid "too light" Pastel Green
     val cardColor = if (isDark) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.primary
-    val contentColor = if (isDark) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onPrimary
+    
+    // ⭐ CHANGED: Use White text in Dark Mode for better contrast against Dark Green
+    val contentColor = if (isDark) Color.White else MaterialTheme.colorScheme.onPrimary
 
     Card(
         modifier = modifier
             .height(100.dp), // Slightly taller than StatisticsCard
         // ⭐ CHANGED: Use Primary (Green) directly as requested for HomePage cards
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
+        colors = CardDefaults.cardColors(containerColor = cardColor), // Revert to using cardColor for adaptive dark mode
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
@@ -80,14 +82,14 @@ fun BalanceCard(
             Text(
                 text = "Balance",
                 style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onPrimary,
+                color = contentColor, // Use contentColor for adaptive contrast
                 textAlign = TextAlign.End
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = amount,
                 style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.onPrimary,
+                color = contentColor, // Use contentColor for adaptive contrast
                 fontWeight = FontWeight.ExtraBold,
                 textAlign = TextAlign.End
             )

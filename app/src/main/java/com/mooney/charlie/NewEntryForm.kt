@@ -33,6 +33,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.mooney.charlie.data.Entry
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.ui.graphics.Color
+import androidx.compose.material3.OutlinedTextFieldDefaults
 
 // --- 1. Top-Level Composable for the New Entry Form ---
 @Composable
@@ -70,6 +74,20 @@ fun NewEntryForm(
             }
         }
     }
+
+    val isDark = isSystemInDarkTheme()
+    // Match Balance Card logic: Dark Green in Dark Mode
+    // Used for Buttons and Text Field Focus
+    val activeColor = if (isDark) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.primary
+    // Used for Text on Buttons
+    val buttonContentColor = if (isDark) Color.White else MaterialTheme.colorScheme.onPrimary
+
+    // Define colors for TextFields to match the theme
+    val textFieldColors = OutlinedTextFieldDefaults.colors(
+        focusedBorderColor = activeColor,
+        focusedLabelColor = activeColor,
+        cursorColor = activeColor
+    )
 
     Surface (
         color = MaterialTheme.colorScheme.background // Changed from surface to background to match screen
@@ -114,7 +132,8 @@ fun NewEntryForm(
                     )
                 },
                 readOnly = true,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = textFieldColors
             )
 
             // 4. Amount in IDR: Number Keyboard
@@ -130,7 +149,8 @@ fun NewEntryForm(
                     imeAction = ImeAction.Next
                 ),
                 leadingIcon = { Text("Rp") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = textFieldColors
             )
 
             // 5. Entry Note: Character Limit
@@ -148,7 +168,8 @@ fun NewEntryForm(
                 maxLines = 4,
                 supportingText = {
                     Text("${noteText.length} / 100")
-                }
+                },
+                colors = textFieldColors
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -175,7 +196,11 @@ fun NewEntryForm(
                     navController.popBackStack()
                 },
                 enabled = amountText.isNotEmpty() && selectedCategory.isNotEmpty(),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = activeColor,
+                    contentColor = buttonContentColor
+                )
             ) {
                 Text(if (initialEntry == null) "SAVE ENTRY" else "SAVE EDIT")
             }
@@ -187,7 +212,11 @@ fun NewEntryForm(
                     navController.popBackStack()
 
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = activeColor,
+                    contentColor = buttonContentColor
+                )
             ) {
                 Text("CANCEL")
             }

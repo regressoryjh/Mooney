@@ -35,7 +35,7 @@ val OnSecondaryContainerDark = Color(0xFFDCEDC8)
 val TertiaryDark = Color(0xFF4DB6AC) // Teal 300
 val OnTertiaryDark = Color(0xFF003300)
 
-val BackgroundDark = Color(0xFF121212) // Near Black
+val BackgroundDark = Color(0xFF1E1F22) // Dark Grey matching Surface
 val SurfaceDark = Color(0xFF1E1F22)
 val OnSurfaceDark = Color(0xFFE3E2E6)
 val OnSurfaceVariantDark = Color(0xFFCAC4D0)

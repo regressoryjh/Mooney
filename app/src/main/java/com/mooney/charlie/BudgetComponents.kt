@@ -96,14 +96,10 @@ fun BudgetSummaryCard(
     val isDark = isSystemInDarkTheme()
     // Use primary container color like BalanceCard
     val cardColor = if (isDark) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.primary
-    val contentColor = if (isDark) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onPrimary
-    val onContentColorVariant = if (isDark) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f) else MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
-
-    // ⭐ Warna disesuaikan (For text/progress that needs to stand out against the green card)
-    // If budget is negative, we might want to show red, but on a green card that might look bad.
-    // Let's stick to white/onPrimary for consistency with BalanceCard, unless it's negative.
-    // If negative, maybe use a light error color or just keep it white but with the negative sign.
-    // For now, let's use the contentColor which provides good contrast.
+    
+    // ⭐ CHANGED: Use White text in Dark Mode for better contrast against Dark Green, consistent with BalanceCard
+    val contentColor = if (isDark) Color.White else MaterialTheme.colorScheme.onPrimary
+    
     val remainingTextColor = contentColor
 
     Card(

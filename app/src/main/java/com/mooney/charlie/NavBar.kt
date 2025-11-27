@@ -3,6 +3,7 @@ package com.mooney.charlie
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircleOutline
 import androidx.compose.material.icons.filled.AccountBalanceWallet
@@ -13,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,10 +24,15 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.mooney.charlie.data.*
+import com.mooney.charlie.ui.theme.PrimaryLight
+import com.mooney.charlie.ui.theme.OnPrimaryLight
 
 // Define the items that will appear in the Bottom Navigation Bar
 enum class BottomNavDestination(
@@ -33,15 +40,15 @@ enum class BottomNavDestination(
     val icon: ImageVector,
     val label: String
 ) {
-    HOME(
-        route = Destinations.HOME,
-        icon = Icons.Filled.Home,
-        label = "Home"
-    ),
     HISTORY(
         route = Destinations.HISTORY,
         icon = Icons.Filled.History,
         label = "History"
+    ),
+    HOME(
+        route = Destinations.HOME,
+        icon = Icons.Filled.Home,
+        label = "Home"
     ),
     BUDGET(
         route = Destinations.BUDGET,
@@ -90,6 +97,11 @@ fun NavigationBar(repository: AppRepository) {
         }
     }
 
+    // Adaptive colors for Navigation Bar Items to match Balance Card
+    val isDark = isSystemInDarkTheme()
+    val activeIndicatorColor = if (isDark) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.primary
+    val activeIconColor = if (isDark) Color.White else MaterialTheme.colorScheme.onPrimary
+
     Scaffold(
         bottomBar = {
             AnimatedVisibility(
@@ -99,6 +111,7 @@ fun NavigationBar(repository: AppRepository) {
                 exit = slideOutVertically(animationSpec = tween(200)) { it } + fadeOut(animationSpec = tween(200))
             ){
                 NavigationBar(
+                    modifier = Modifier.shadow(elevation = 8.dp),
                     // ⭐ CHANGED: Use MaterialTheme.colorScheme.background to match screen background
                     containerColor = MaterialTheme.colorScheme.background, 
                     windowInsets = NavigationBarDefaults.windowInsets
@@ -129,7 +142,13 @@ fun NavigationBar(repository: AppRepository) {
                                     contentDescription = destination.label // Use label as content description
                                 )
                             },
-                            label = { Text(destination.label) }
+                            label = { Text(destination.label) },
+                            colors = NavigationBarItemDefaults.colors(
+                                // Adaptive colors matching Balance Card
+                                indicatorColor = activeIndicatorColor,
+                                selectedIconColor = activeIconColor,
+                                selectedTextColor = MaterialTheme.colorScheme.onSurface
+                            )
                         )
                     }
                 }

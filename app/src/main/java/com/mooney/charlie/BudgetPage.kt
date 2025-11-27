@@ -4,6 +4,7 @@
 package com.mooney.charlie
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,6 +17,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.mooney.charlie.BudgetViewModel
+import com.mooney.charlie.ui.theme.CardBackgroundDark
+import com.mooney.charlie.ui.theme.CardBackgroundLight
 
 @Composable
 fun BudgetPage(
@@ -23,6 +26,9 @@ fun BudgetPage(
     viewModel: BudgetViewModel = viewModel()
 ) {
     var showEditDialog by remember { mutableStateOf(false) }
+
+    val isDark = isSystemInDarkTheme()
+    val customCardColor = if (isDark) CardBackgroundDark else CardBackgroundLight
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -63,35 +69,44 @@ fun BudgetPage(
 
                 // ITEM 2: GRAPHIC TREN & DAILY STATISTICS
                 item {
-                    // Changed from Card to Column to remove "square" style as requested
-                    Column(
+                    Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                            .padding(16.dp)
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = customCardColor
+                        ),
+                        shape = RoundedCornerShape(16.dp),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                     ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(20.dp)
+                        ) {
 
-                        // TITLE
-                        Text(
-                            "Spending Trend",
-                            style = MaterialTheme.typography.titleLarge,
-                            modifier = Modifier.padding(bottom = 16.dp)
-                        )
-                        // LINE CHART
-                        LineChartView(
-                            data = viewModel.dailySpendTrend.map { it.cumulativeSpend.toFloat() },
-                            budgetLimit = viewModel.monthlyBudget.toFloat(),
-                            totalDaysInMonth = viewModel.totalDaysInMonth
-                        )
+                            // TITLE
+                            Text(
+                                "Spending Trend",
+                                style = MaterialTheme.typography.titleLarge,
+                                modifier = Modifier.padding(bottom = 16.dp)
+                            )
+                            // LINE CHART
+                            LineChartView(
+                                data = viewModel.dailySpendTrend.map { it.cumulativeSpend.toFloat() },
+                                budgetLimit = viewModel.monthlyBudget.toFloat(),
+                                totalDaysInMonth = viewModel.totalDaysInMonth
+                            )
 
-                        // INTEGRASI DAILY STATISTICS (Tanpa Judul)
-                        Spacer(modifier = Modifier.height(24.dp))
-                        DailyStatBlock(
-                            dailyAverageSpend = viewModel.dailyAverageSpend,
-                            recommendedDailySpend = viewModel.recommendedDailySpend,
-                            showTitle = false,
-                            modifier = Modifier.fillMaxWidth()
-                        )
+                            // INTEGRASI DAILY STATISTICS (Tanpa Judul)
+                            Spacer(modifier = Modifier.height(24.dp))
+                            DailyStatBlock(
+                                dailyAverageSpend = viewModel.dailyAverageSpend,
+                                recommendedDailySpend = viewModel.recommendedDailySpend,
+                                showTitle = false,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
                     }
                 }
             }
