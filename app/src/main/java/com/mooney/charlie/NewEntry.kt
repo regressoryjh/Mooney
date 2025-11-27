@@ -18,7 +18,7 @@ fun NewEntry(
     initialEntry: Entry? = null // Accept an optional entry for editing
 ) {
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+        containerColor = MaterialTheme.colorScheme.background,
         modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
         Column (modifier = Modifier.padding(paddingValues)) {

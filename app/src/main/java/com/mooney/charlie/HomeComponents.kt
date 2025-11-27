@@ -3,6 +3,7 @@ package com.mooney.charlie
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,17 +45,26 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mooney.charlie.data.Entry
+import com.mooney.charlie.ui.theme.IncomeGreen
+import com.mooney.charlie.ui.theme.ExpenseRed
 
 @Composable
 fun BalanceCard(
     modifier: Modifier = Modifier,
     amount: String,
-    color: Color
+    color: Color // We determine color internally for theme coherence
 ) {
+    val isDark = isSystemInDarkTheme()
+    // Light Mode: Use Primary (Deep Green)
+    // Dark Mode: Use PrimaryContainer (Dark Green) to avoid "too light" Pastel Green
+    val cardColor = if (isDark) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.primary
+    val contentColor = if (isDark) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onPrimary
+
     Card(
         modifier = modifier
             .height(100.dp), // Slightly taller than StatisticsCard
-        colors = CardDefaults.cardColors(containerColor = color.copy()),
+        // ⭐ CHANGED: Use Primary (Green) directly as requested for HomePage cards
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
@@ -66,16 +76,16 @@ fun BalanceCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Current Balance",
+                text = "Balance",
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onTertiary,
+                color = MaterialTheme.colorScheme.onPrimary,
                 textAlign = TextAlign.End
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = amount,
                 style = MaterialTheme.typography.headlineLarge,
-                color = MaterialTheme.colorScheme.onTertiary,
+                color = MaterialTheme.colorScheme.onPrimary,
                 fontWeight = FontWeight.ExtraBold,
                 textAlign = TextAlign.End
             )
@@ -137,6 +147,7 @@ fun DonutChart(
 ) {
     val entries = data.values.toList()
     val totalFloat = totalAmount.toFloat()
+    val separatorColor = MaterialTheme.colorScheme.surface
 
     Box(modifier = modifier, contentAlignment = Alignment.Center) {
         Canvas(modifier = Modifier.fillMaxSize()) {
@@ -177,15 +188,30 @@ fun DonutChart(
                     val radius = diameter / 2f + strokeWidth / 2f
                     val center = Offset(this.size.width / 2f, this.size.height / 2f)
 
-                    // Draw a small dot at the separation point
-                    drawCircle(
-                        color = Color.Black, // Background color for separation
-                        radius = 3.dp.toPx(),
-                        center = center + Offset(
-                            (radius * kotlin.math.cos(Math.toRadians(endAngle.toDouble()))).toFloat(),
-                            (radius * kotlin.math.sin(Math.toRadians(endAngle.toDouble()))).toFloat()
-                        )
+                    // Draw a small line at the separation point (transparent line)
+                    // ADJUSTED: Longer line and Thinner line as requested
+                    val lineLength = strokeWidth * 2f // Increased length
+                    val lineStartRadius = (diameter / 2f) - (strokeWidth * 0.4f) // Adjusted start
+                    val lineEndRadius = lineStartRadius + lineLength
+
+                    val angleRad = Math.toRadians(endAngle.toDouble())
+                    val lineStart = center + Offset(
+                        (lineStartRadius * kotlin.math.cos(angleRad)).toFloat(),
+                        (lineStartRadius * kotlin.math.sin(angleRad)).toFloat()
                     )
+                    val lineEnd = center + Offset(
+                        (lineEndRadius * kotlin.math.cos(angleRad)).toFloat(),
+                        (lineEndRadius * kotlin.math.sin(angleRad)).toFloat()
+                    )
+
+                    drawLine(
+                        color = separatorColor,
+                        start = lineStart,
+                        end = lineEnd,
+                        strokeWidth = 2.dp.toPx(), // Reduced width (thinner)
+                        cap = StrokeCap.Butt
+                    )
+
                     startAngle += sweepAngle
                 }
             }
@@ -290,12 +316,13 @@ fun TransactionListItem(
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Category Icon Placeholder
+            // Category Icon Placeholder - now clickable for menu
             Box(
                 modifier = Modifier
                     .size(32.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.primaryContainer)
+                    .clickable { showMenu = true } // Trigger menu on click
             ) {
                 Box(
                     modifier = Modifier
@@ -304,6 +331,28 @@ fun TransactionListItem(
                         .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.primary)
                 )
+                
+                DropdownMenu(
+                    expanded = showMenu,
+                    onDismissRequest = { showMenu = false },
+                    // ⭐ ADDED: Match the background color of the popup to the screen background
+                    containerColor = MaterialTheme.colorScheme.background
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Edit") },
+                        onClick = {
+                            showMenu = false
+                            onEditClick(transaction.entry) // <--- Call Edit
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Delete") },
+                        onClick = {
+                            showMenu = false
+                            showDeleteDialog = true
+                        }
+                    )
+                }
             }
             // Category (Household) and Note (Weekly cleaning service tip)
             Column(
@@ -331,43 +380,11 @@ fun TransactionListItem(
             Text(
                 text = transaction.totalAmount, // e.g., Rp70.000
                 style = MaterialTheme.typography.bodyMedium,
-                color = if (isIncome) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                color = if (isIncome) IncomeGreen else ExpenseRed, // Using specific green/red colors
                 fontWeight = FontWeight.SemiBold
             )
-
-            // Options Icon (MoreVert) and Dropdown Menu
-            Box {
-                IconButton(
-                    onClick = { showMenu = true },
-                    modifier = Modifier.size(28.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.MoreVert,
-                        contentDescription = "Options menu",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-
-                DropdownMenu(
-                    expanded = showMenu,
-                    onDismissRequest = { showMenu = false }
-                ) {
-                    DropdownMenuItem(
-                        text = { Text("Edit") },
-                        onClick = {
-                            showMenu = false
-                            onEditClick(transaction.entry) // <--- Call Edit
-                        }
-                    )
-                    DropdownMenuItem(
-                        text = { Text("Delete") },
-                        onClick = {
-                            showMenu = false
-                            showDeleteDialog = true
-                        }
-                    )
-                }
-            }
+            
+            // Removed the options icon button from here as it is now integrated into the leading circle icon
         }
     }
 
@@ -394,12 +411,3 @@ fun TransactionListItem(
         )
     }
 }
-
-
-// ⭐ REMOVED/REPLACED: The old ExpandableTransactionCard is no longer used.
-// It is good practice to remove unused code to clean up the file.
-
-// The rest of the composables are unchanged.
-// BalanceCard, StatisticsCard, CategoryLegendItem, DonutChart, etc.
-
-// ... (Rest of the unchanged code)

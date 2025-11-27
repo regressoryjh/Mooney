@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -28,7 +29,7 @@ fun HistoryPage(
     val groupedData by viewModel.groupedHistory.collectAsState()
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
@@ -46,12 +47,15 @@ fun HistoryPage(
             )
         }
     ) { paddingValues ->
-        Column(modifier = Modifier.padding(paddingValues)) {
+        Column(modifier = Modifier.padding(top = paddingValues.calculateTopPadding())) {
 
             // 2. Item List Grouped by Day
             LazyColumn(
                 // ⭐ Hapus contentPadding(horizontal) di sini
-                contentPadding = PaddingValues(top = 0.dp),
+                contentPadding = PaddingValues(
+                    top = 0.dp,
+                    bottom = 150.dp
+                ),
                 modifier = Modifier.fillMaxSize()
             ) {
                 if (groupedData.isEmpty()) {
@@ -77,15 +81,29 @@ fun HistoryPage(
                         }
 
                         // Daftar Entri Harian
-                        items(group.entries) { entry ->
+                        itemsIndexed(group.entries) { index, entry ->
                             // ⭐ Tambahkan padding horizontal ke item agar sejajar dengan header
                             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                                 HistoryItem(
                                     entry = entry,
                                     onDeleteClick = {
                                         viewModel.deleteEntry(it)
+                                    },
+                                    onEditClick = { entryToEdit ->
+                                        // Navigate to Edit (New Entry page with args)
+                                        navController.navigate(Destinations.NEW_WITH_ARG.replace("{${Destinations.ENTRY_ID_KEY}}", entryToEdit.id.toString()))
                                     }
                                 )
+
+                                // Show separator ONLY if it's NOT the last item in the group
+                                if (index < group.entries.lastIndex) {
+                                    HorizontalDivider(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 0.dp),
+                                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                                    )
+                                }
                             }
                         }
                     }
@@ -97,41 +115,3 @@ fun HistoryPage(
 
 // Header untuk menampilkan Tanggal dan Total Harian
 // HistoryPage.kt
-
-@Composable
-fun DayHeader(date: String, totalAmount: Long) {
-    val numberFormat = NumberFormat.getNumberInstance(Locale("id", "ID"))
-
-    // Tentukan tanda (minus atau kosong) di sini
-    val sign = if (totalAmount < 0) "-" else ""
-
-    // Gunakan nilai absolut (abs) untuk memformat angka tanpa tanda
-    val formattedTotal = numberFormat.format(abs(totalAmount))
-
-    Surface(
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
-        tonalElevation = 2.dp,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Row(
-            modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            // Tanggal
-            Text(
-                text = date,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            // ⭐ TOTAL HARIAN YANG DIFORMAT ULANG ⭐
-            Text(
-                text = "$sign Rp$formattedTotal", // Tanda kini di depan Rp
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold,
-//                color = if (totalAmount >= 0) Color(0xFF1B5E20) else Color(0xFFB71C1C)
-            )
-        }
-    }
-}

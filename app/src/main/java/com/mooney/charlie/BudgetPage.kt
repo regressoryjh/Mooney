@@ -25,7 +25,7 @@ fun BudgetPage(
     var showEditDialog by remember { mutableStateOf(false) }
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
@@ -44,11 +44,11 @@ fun BudgetPage(
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier.padding(paddingValues)
+            modifier = Modifier.padding(top = paddingValues.calculateTopPadding())
         ) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = 16.dp)
+                contentPadding = PaddingValues(bottom = 120.dp) // Add bottom padding for navigation bar
             ) {
 
                 // ITEM 1: Budget Summary Card
@@ -61,42 +61,37 @@ fun BudgetPage(
                     )
                 }
 
-                // ITEM 2: CARD: GRAFIK TREN & DAILY STATISTICS
+                // ITEM 2: GRAPHIC TREN & DAILY STATISTICS
                 item {
-                    Card(
+                    // Changed from Card to Column to remove "square" style as requested
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        border = BorderStroke(1.dp, Color.Gray.copy(alpha = 0.3f)),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface
-                        )
+                            .padding(horizontal = 16.dp)
+                            .padding(16.dp)
                     ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
 
-                            // CARD TITLE
-                            Text(
-                                "Spending Trend",
-                                style = MaterialTheme.typography.titleLarge,
-                                modifier = Modifier.padding(bottom = 16.dp)
-                            )
-                            // LINE CHART
-                            LineChartView(
-                                data = viewModel.dailySpendTrend.map { it.cumulativeSpend.toFloat() },
-                                budgetLimit = viewModel.monthlyBudget.toFloat(),
-                                totalDaysInMonth = viewModel.totalDaysInMonth // Tambahkan total hari
-                            )
+                        // TITLE
+                        Text(
+                            "Spending Trend",
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
+                        // LINE CHART
+                        LineChartView(
+                            data = viewModel.dailySpendTrend.map { it.cumulativeSpend.toFloat() },
+                            budgetLimit = viewModel.monthlyBudget.toFloat(),
+                            totalDaysInMonth = viewModel.totalDaysInMonth
+                        )
 
-                            // INTEGRASI DAILY STATISTICS (Tanpa Judul)
-                            Spacer(modifier = Modifier.height(24.dp))
-                            DailyStatBlock(
-                                dailyAverageSpend = viewModel.dailyAverageSpend,
-                                recommendedDailySpend = viewModel.recommendedDailySpend,
-                                showTitle = false,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
+                        // INTEGRASI DAILY STATISTICS (Tanpa Judul)
+                        Spacer(modifier = Modifier.height(24.dp))
+                        DailyStatBlock(
+                            dailyAverageSpend = viewModel.dailyAverageSpend,
+                            recommendedDailySpend = viewModel.recommendedDailySpend,
+                            showTitle = false,
+                            modifier = Modifier.fillMaxWidth()
+                        )
                     }
                 }
             }

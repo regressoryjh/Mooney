@@ -46,6 +46,9 @@ class BudgetViewModel(private val repository: AppRepository) : ViewModel() {
     var totalDaysInMonth by mutableStateOf(0)
         private set
 
+    // Cache for entries to allow recalculation when budget changes
+    private var _cachedEntries: List<Entry> = emptyList()
+
     // ------------------------------------------------------------------
 
     init {
@@ -53,14 +56,15 @@ class BudgetViewModel(private val repository: AppRepository) : ViewModel() {
         viewModelScope.launch {
             repository.getBudget().collectLatest { budget ->
                 monthlyBudget = budget?.amount ?: 0L
-                // Trigger recalculation if we have entries (though entries flow will also trigger it)
-                // For now, we rely on entries flow or re-fetching if needed, but usually entries flow is enough
+                // Recalculate stats with the new budget and cached entries
+                recalculateBudgetStats(_cachedEntries)
             }
         }
 
         // 2. Collect Monthly Entries Flow (Incomes and Outcomes)
         viewModelScope.launch {
             repository.getEntriesForCurrentMonth().collectLatest { entries ->
+                _cachedEntries = entries // Update cache
                 // Recalculate all stats whenever entries change.
                 recalculateBudgetStats(entries)
             }

@@ -2,49 +2,63 @@
 
 package com.mooney.charlie
 
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.Divider
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import kotlin.math.absoluteValue
-import com.mooney.charlie.data.Entry
+import androidx.compose.ui.graphics.toArgb
+import androidx.core.graphics.ColorUtils
+import com.mooney.charlie.ui.theme.CardBackgroundDark
+import com.mooney.charlie.ui.theme.CardBackgroundLight
 
-// Define a map for clean category-to-color mapping for the Spending Overview chart.
-// Using a curated set of distinct colors for better visual separation in the donut chart.
-private val CategoryColorMap = mapOf(
-    "Food & Drink" to Color(0xFFF4511E), // Deep Orange
-    "Transport" to Color(0xFF0288D1),    // Dark Blue
-    "Bills & Utilities" to Color(0xFF4CAF50), // Green
-    "Shopping" to Color(0xFF9C27B0),     // Purple
-    "Household" to Color(0xFFFFC107),    // Amber
-    "Entertainment" to Color(0xFFE53935), // Red
-    "Investment" to Color(0xFF00ACC1),   // Cyan
-    "Personal Care" to Color(0xFF8D6E63), // Brown
-    "Health" to Color(0xFF3F51B5),       // Indigo
-    "Education" to Color(0xFF7CB342)      // Light Green
-    // Other categories will default to the theme's outline color
-)
+
+@Composable
+fun getCategoryColor(rank: Int, isDark: Boolean): Color {
+    // Define the start and end colors for the gradient
+    // Start with a darker, richer green for the largest category
+    val startColor = if (isDark) Color(0xFF388E3C) else Color(0xFF2E7D32) // Dark Green 
+    // End with a very light green/yellow-green for the smallest category
+    val endColor = if (isDark) Color(0xFFC8E6C9) else Color(0xFFA5D6A7)   // Very Light Green
+
+    // Calculate the color at the given rank
+    val maxRank = 5 // Top 5 categories + Others (total 6 items, ranks 0-5)
+    val fraction = rank.toFloat() / maxRank.toFloat()
+
+    // Blend the colors
+    val blendedArgb = ColorUtils.blendARGB(
+        startColor.toArgb(),
+        endColor.toArgb(),
+        fraction.coerceIn(0f, 1f)
+    )
+
+    return Color(blendedArgb)
+}
 
 @Composable
 fun HomePage(
@@ -57,26 +71,46 @@ fun HomePage(
     val thisMonthExpense = viewModel.thisMonthExpense
     val todayTransactions = viewModel.todayEntries
     val monthlySpendingOverview = viewModel.monthlySpendingOverview
+    
+    val isDark = isSystemInDarkTheme()
+    val customCardColor = if (isDark) CardBackgroundDark else CardBackgroundLight
 
     // Spending Overview Data Preparation
     val totalSpending = thisMonthExpense.toFloat()
 
-    val spendingOverviewData = monthlySpendingOverview
+    // 1. Sort categories by amount (descending)
+    val sortedCategories = monthlySpendingOverview.entries
+        .sortedByDescending { it.value }
         .map { (category, amount) ->
-            val percentage = if (totalSpending > 0) (amount.toFloat() / totalSpending) * 100f else 0f
             SpendingCategory(
                 name = category,
                 amount = amount,
-                percentage = percentage,
-                // Assign a color using the centralized map, falling back to the outline color
-                color = CategoryColorMap.getOrDefault(category, MaterialTheme.colorScheme.outline)
+                percentage = if (totalSpending > 0) (amount.toFloat() / totalSpending) * 100f else 0f,
+                color = Color.Transparent // Placeholder, will be assigned later
             )
         }
-        .sortedByDescending { it.amount }
-        .take(10) // Take Top 10 for better visibility in the chart and legend
+
+    // 2. Take top 5 categories
+    val topCategories = sortedCategories.take(5)
+
+    // 3. Calculate "Others"
+    val othersAmount = sortedCategories.drop(5).sumOf { it.amount }
+    val othersCategory = if (othersAmount > 0) {
+        SpendingCategory(
+            name = "Others",
+            amount = othersAmount,
+            percentage = if (totalSpending > 0) (othersAmount.toFloat() / totalSpending) * 100f else 0f,
+            color = Color.Transparent // Placeholder
+        )
+    } else null
+
+    // 4. Combine and assign colors based on rank
+    val spendingOverviewData = (topCategories + listOfNotNull(othersCategory)).mapIndexed { index, category ->
+        category.copy(color = getCategoryColor(index, isDark))
+    }
 
     Scaffold(
-        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+        containerColor = MaterialTheme.colorScheme.background, // Changed to background (Near White/Black)
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
@@ -87,7 +121,7 @@ fun HomePage(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 20.dp, start = 16.dp, end = 16.dp, bottom = 32.dp),
+                    .padding(top = 20.dp, start = 16.dp, end = 16.dp, bottom = 36.dp),
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent
                 )
@@ -95,11 +129,14 @@ fun HomePage(
         }
     ) { paddingValues ->
         LazyColumn(
-            modifier = Modifier.padding(paddingValues),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = paddingValues.calculateTopPadding()),
             contentPadding = PaddingValues(
-                start = 28.dp,
+                start = 16.dp,
                 end = 16.dp,
-                bottom = 100.dp // Reduced from 150.dp to fix the gap
+                top = 16.dp,
+                bottom = 150.dp
             ),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -113,7 +150,7 @@ fun HomePage(
                     BalanceCard(
                         modifier = Modifier.fillMaxWidth(),
                         amount = formatRupiah(currentBalance),
-                        color = Color(0xFF4A588B) // Highlight color
+                        color = MaterialTheme.colorScheme.primary // UPDATED to Theme Primary
 
                     )
 
@@ -127,7 +164,7 @@ fun HomePage(
                             modifier = Modifier.weight(1f),
                             title = "Income",
                             amount = formatRupiah(thisMonthIncome),
-                            color = MaterialTheme.colorScheme.surface
+                            color = customCardColor
                         )
 
                         // Expense Card
@@ -135,7 +172,7 @@ fun HomePage(
                             modifier = Modifier.weight(1f),
                             title = "Expense",
                             amount = formatRupiah(thisMonthExpense),
-                            color = MaterialTheme.colorScheme.surface
+                            color = customCardColor
                         )
                     }
                 }
@@ -147,7 +184,7 @@ fun HomePage(
                     modifier = Modifier
                         .fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
+                        containerColor = customCardColor
                     ),
                     shape = RoundedCornerShape(16.dp),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -245,7 +282,7 @@ fun HomePage(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface
+                        containerColor = customCardColor
                     ),
                     shape = RoundedCornerShape(12.dp),
                     elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)

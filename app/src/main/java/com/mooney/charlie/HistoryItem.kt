@@ -2,7 +2,11 @@
 
 package com.mooney.charlie
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
@@ -13,28 +17,87 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mooney.charlie.data.*
+import com.mooney.charlie.ui.theme.CardBackgroundDark
+import com.mooney.charlie.ui.theme.CardBackgroundLight
+import com.mooney.charlie.ui.theme.IncomeGreen
+import com.mooney.charlie.ui.theme.IncomeGreenDark
+import com.mooney.charlie.ui.theme.ExpenseRed
+import com.mooney.charlie.ui.theme.ExpenseRedDark
 import java.text.NumberFormat
 import java.util.Locale
+import kotlin.math.abs
+
+
+// Header untuk menampilkan Tanggal dan Total Harian
+// HistoryPage.kt
+
+@Composable
+fun DayHeader(date: String, totalAmount: Long) {
+    val numberFormat = NumberFormat.getNumberInstance(Locale("id", "ID"))
+    val isDark = isSystemInDarkTheme()
+
+    // Tentukan tanda (minus atau kosong) di sini
+    val sign = if (totalAmount < 0) "-" else ""
+
+    // Gunakan nilai absolut (abs) untuk memformat angka tanpa tanda
+    val formattedTotal = numberFormat.format(abs(totalAmount))
+    
+    val customCardColor = if (isDark) CardBackgroundDark else CardBackgroundLight
+
+    Surface(
+        // ganti warna: using primary container for a darker/tinted look
+        color = customCardColor, 
+        tonalElevation = 2.dp,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Tanggal
+            Text(
+                text = date,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSecondaryContainer, // Matching content color
+                modifier = Modifier.weight(1f)
+            )
+
+            // ⭐ TOTAL HARIAN YANG DIFORMAT ULANG ⭐
+            Text(
+                text = "$sign Rp$formattedTotal", // Tanda kini di depan Rp
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSecondaryContainer, // Matching content color
+                textAlign = TextAlign.End
+            )
+        }
+    }
+}
+
+
 
 @Composable
 fun HistoryItem(
     entry: Entry,
-    onDeleteClick: (Entry) -> Unit = {} // Make it optional for preview/default
+    onDeleteClick: (Entry) -> Unit = {}, // Make it optional for preview/
+    onEditClick: (Entry) -> Unit // <--- Added Edit Callback
 ) {
-
+    val isDark = isSystemInDarkTheme()
     var showMenu by remember { mutableStateOf(false) }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     // Tentukan warna berdasarkan tipe
     val amountColor = when (entry.type) {
-        EntryType.INCOME -> Color(0xFF388E3C) // Hijau gelap (contoh)
-        EntryType.OUTCOME -> Color(0xFFD32F2F) // Merah gelap (contoh)
+        EntryType.INCOME -> if (isDark) IncomeGreenDark else IncomeGreen
+        EntryType.OUTCOME -> if (isDark) ExpenseRedDark else ExpenseRed
     }
 
     // Format jumlah (IDR)
@@ -50,7 +113,47 @@ fun HistoryItem(
             .padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Kiri: Kategori dan Catatan
+        // Left side: Icon/Circle that triggers menu
+        Box(
+            modifier = Modifier
+                .size(32.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.primaryContainer)
+                .clickable { showMenu = true } // Click to show options
+        ) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .size(16.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary)
+            )
+            
+            DropdownMenu(
+                expanded = showMenu,
+                onDismissRequest = { showMenu = false },
+                containerColor = MaterialTheme.colorScheme.background // Use screen background color
+            ) {
+                DropdownMenuItem(
+                    text = { Text("Edit") },
+                    onClick = {
+                        showMenu = false
+                        onEditClick(entry)
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("Delete") },
+                    onClick = {
+                        showMenu = false
+                        showDeleteDialog = true
+                    }
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.width(12.dp))
+        
+        // Middle: Category and Note
         Column(modifier = Modifier.weight(1f)) {
             // Kategori (Lebih besar dan warna lebih dalam/tebal)
             Text(
@@ -69,7 +172,7 @@ fun HistoryItem(
 
         Spacer(modifier = Modifier.width(16.dp))
 
-        // Kanan: Jumlah
+        // Right: Amount
         Text(
 //            text = "$sign Rp$formattedAmount",
             text = "Rp$formattedAmount",
@@ -78,41 +181,6 @@ fun HistoryItem(
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.End
         )
-
-        Spacer(modifier = Modifier.width(8.dp))
-
-        Box {
-            IconButton(
-                onClick = { showMenu = true },
-                modifier = Modifier.size(28.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.MoreVert,
-                    contentDescription = "Options menu",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            DropdownMenu(
-                expanded = showMenu,
-                onDismissRequest = { showMenu = false }
-            ) {
-                DropdownMenuItem(
-                    text = { Text("Edit") },
-                    onClick = {
-                        // TODO: Implement Edit logic here (e.g., navigate to edit screen)
-                        showMenu = false
-                    }
-                )
-                DropdownMenuItem(
-                    text = { Text("Delete") },
-                    onClick = {
-                        showMenu = false
-                        showDeleteDialog = true
-                    }
-                )
-            }
-        }
     }
     // Opsional: Divider di bawah setiap item
     Divider(color = MaterialTheme.colorScheme.surfaceVariant, thickness = 0.5.dp)

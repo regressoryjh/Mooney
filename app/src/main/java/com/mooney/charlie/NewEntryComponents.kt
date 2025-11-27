@@ -48,17 +48,17 @@ fun TypeToggleButton(
             // If readOnly is true, determine colors based on whether this button is the selected one.
             // The unselected button will get a "disabled" look.
             val containerColor = if (readOnly) {
-                if (isSelected) Color(0xFF4A588B).copy(alpha = 0.5f) // Grayed out selected
-                else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f) // Grayed out unselected
+                if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.5f) // Grayed out selected
+                else MaterialTheme.colorScheme.background // Screen background color for unselected read-only
             } else {
-                if (isSelected) Color(0xFF4A588B) else MaterialTheme.colorScheme.primaryContainer
+                if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.background // Screen background for unselected
             }
 
             val contentColor = if (readOnly) {
-                if (isSelected) MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.7f)
-                else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                if (isSelected) MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f)
+                else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
             } else {
-                if (isSelected) MaterialTheme.colorScheme.onTertiary else MaterialTheme.colorScheme.onPrimaryContainer
+                if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
             }
 
             OutlinedButton(

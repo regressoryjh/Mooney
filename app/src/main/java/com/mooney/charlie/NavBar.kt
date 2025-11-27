@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
@@ -97,7 +98,11 @@ fun NavigationBar(repository: AppRepository) {
                 enter = slideInVertically(animationSpec = tween(200)) { it } + fadeIn(animationSpec = tween(200)),
                 exit = slideOutVertically(animationSpec = tween(200)) { it } + fadeOut(animationSpec = tween(200))
             ){
-                NavigationBar(windowInsets = NavigationBarDefaults.windowInsets) {
+                NavigationBar(
+                    // ⭐ CHANGED: Use MaterialTheme.colorScheme.background to match screen background
+                    containerColor = MaterialTheme.colorScheme.background, 
+                    windowInsets = NavigationBarDefaults.windowInsets
+                ) {
                     BottomNavDestination.entries.forEachIndexed { index, destination ->
                         NavigationBarItem(
                             // Gunakan status yang DIPERBARUI oleh LaunchedEffect
@@ -135,7 +140,7 @@ fun NavigationBar(repository: AppRepository) {
         NavGraph(
             navController = navController,
             repository = repository, // <--- PASS REPOSITORY
-            modifier = Modifier.padding(contentPadding) // Apply padding to avoid content being under the bar
+            modifier = Modifier.padding(top = contentPadding.calculateTopPadding()) // Only apply top padding to let content go behind bottom bar
         )
     }
 }

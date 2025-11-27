@@ -72,7 +72,7 @@ fun NewEntryForm(
     }
 
     Surface (
-        color = MaterialTheme.colorScheme.secondaryContainer
+        color = MaterialTheme.colorScheme.background // Changed from surface to background to match screen
     ) {
         Column(
             modifier = Modifier

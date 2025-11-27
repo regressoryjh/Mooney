@@ -3,7 +3,9 @@
 package com.mooney.charlie
 
 import android.R.attr.entries
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -34,7 +36,8 @@ import java.util.Locale
 import kotlin.math.absoluteValue
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.material3.MaterialTheme
-
+import com.mooney.charlie.ui.theme.ExpenseRed
+import com.mooney.charlie.ui.theme.PrimaryLight
 
 @Composable
 fun BudgetEditDialog(
@@ -84,19 +87,32 @@ fun BudgetSummaryCard(
 ) {
     val numberFormat = NumberFormat.getNumberInstance(Locale("id", "ID"))
     val formattedMonthly = numberFormat.format(monthlyBudget)
+    // FIX: Don't use absolute value here to keep the sign, but handle the sign manually
     val formattedRemaining = numberFormat.format(remainingBudget.absoluteValue)
     val sign = if (remainingBudget < 0) "-" else ""
 
     val percentSpent = if (monthlyBudget > 0) (totalOutcomeThisMonth.toFloat() / monthlyBudget.toFloat()) * 100 else 0f
 
-    // ⭐ Warna disesuaikan
-    val remainingColor = if (remainingBudget >= 0) MaterialTheme.colorScheme.primary else Color(0xFFD32F2F)
+    val isDark = isSystemInDarkTheme()
+    // Use primary container color like BalanceCard
+    val cardColor = if (isDark) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.primary
+    val contentColor = if (isDark) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onPrimary
+    val onContentColorVariant = if (isDark) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f) else MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
+
+    // ⭐ Warna disesuaikan (For text/progress that needs to stand out against the green card)
+    // If budget is negative, we might want to show red, but on a green card that might look bad.
+    // Let's stick to white/onPrimary for consistency with BalanceCard, unless it's negative.
+    // If negative, maybe use a light error color or just keep it white but with the negative sign.
+    // For now, let's use the contentColor which provides good contrast.
+    val remainingTextColor = contentColor
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+        shape = RoundedCornerShape(16.dp), // Match BalanceCard radius
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp), // Match BalanceCard elevation
+        colors = CardDefaults.cardColors(containerColor = cardColor)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -108,13 +124,13 @@ fun BudgetSummaryCard(
                     Text(
                         text = "Remaining Budget",
                         style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        color = contentColor,
                         modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
                     )
                     Text(
                         text = "$sign Rp $formattedRemaining / Rp $formattedMonthly",
                         style = MaterialTheme.typography.headlineSmall,
-                        color = remainingColor,
+                        color = remainingTextColor,
                         fontWeight = FontWeight.Bold
                     )
                 }
@@ -123,7 +139,7 @@ fun BudgetSummaryCard(
                     Icon(
                         Icons.Filled.Edit,
                         contentDescription = "Edit Monthly Budget",
-                        tint = MaterialTheme.colorScheme.primary
+                        tint = contentColor
                     )
                 }
             }
@@ -133,9 +149,8 @@ fun BudgetSummaryCard(
             // Progress Bar
             LinearProgressIndicator(
                 progress = { percentSpent.coerceIn(0f, 100f) / 100f },
-                // ⭐ Warna disesuaikan
-                color = if (remainingBudget >= 0) MaterialTheme.colorScheme.primary else Color(0xFFF44336),
-                trackColor = Color.Gray.copy(alpha = 0.4f),
+                color = contentColor, // Use content color for progress so it's visible
+                trackColor = contentColor.copy(alpha = 0.3f), // Semitransparent track
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(8.dp)
@@ -148,7 +163,7 @@ fun BudgetSummaryCard(
                 Text(
                     text = "${percentSpent.toInt()}% Spent",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                    color = contentColor
                 )
             }
 
@@ -248,24 +263,14 @@ fun LineChartView(
         Entry(index.toFloat(), cumulativeSpend)
     }
 
-    if (entries.isEmpty()) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(260.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Text("No Expense Data This Month")
-        }
-        return
-    }
-
     val spentColor = MaterialTheme.colorScheme.primary
     val limitColor = MaterialTheme.colorScheme.tertiary
+    val textColor = MaterialTheme.colorScheme.onSurface
 
-    val lightGridColorInt = Color.Gray.copy(alpha = 0.4f).toArgb()
+    val lightGridColorInt = MaterialTheme.colorScheme.outlineVariant.toArgb()
     val spentColorInt = spentColor.toArgb()
     val limitColorInt = limitColor.toArgb()
+    val textColorInt = textColor.toArgb()
 
     // DataSet 1: Cumulative Spent
     val spentDataSet = LineDataSet(entries, "Spent").apply {
@@ -310,7 +315,7 @@ fun LineChartView(
                     orientation = Legend.LegendOrientation.HORIZONTAL
                     setDrawInside(true)
                     // Customize text size/color if needed
-                    // textColor = MaterialTheme.colorScheme.onSurface.toArgb()
+                    this.textColor = textColorInt
                 }
 
                 // X-AXIS FIXES
@@ -321,6 +326,7 @@ fun LineChartView(
                 xAxis.axisMaximum = totalDaysInMonth.toFloat() - 1 // Max X = Hari terakhir bulan
                 xAxis.setAvoidFirstLastClipping(true) // Memastikan label pertama/terakhir tidak terpotong
                 xAxis.gridColor = lightGridColorInt
+                xAxis.textColor = textColorInt
 
                 // Y-AXIS FIXES
                 axisLeft.setDrawGridLines(true)
@@ -328,11 +334,11 @@ fun LineChartView(
                 axisLeft.axisMinimum = 0f
                 axisLeft.axisMaximum = budgetLimit * 1.2f
                 axisLeft.setDrawZeroLine(true) // ⭐ Fix 2: Agar sumbu Y memotong di (0,0)
+                axisLeft.textColor = textColorInt
 
                 //
-                val lightGridColor = Color.Gray.copy(alpha = 0.4f).toArgb()
-                axisLeft.gridColor = lightGridColor
-                xAxis.gridColor = lightGridColor
+                axisLeft.gridColor = lightGridColorInt
+                xAxis.gridColor = lightGridColorInt
 
                 // ⭐ Fix 3: Hapus label 0 pada sumbu Y, karena sumbu X sudah memotong di 0
                 axisLeft.valueFormatter = object : ValueFormatter() {
@@ -352,7 +358,16 @@ fun LineChartView(
         update = { chart ->
             chart.data = lineData
             chart.xAxis.axisMaximum = totalDaysInMonth.toFloat() - 1
+            // Update Y-Axis maximum to reflect new budget
             chart.axisLeft.axisMaximum = budgetLimit * 1.2f
+            
+            // Update colors for dark/light mode
+            chart.legend.textColor = textColorInt
+            chart.xAxis.textColor = textColorInt
+            chart.axisLeft.textColor = textColorInt
+            chart.xAxis.gridColor = lightGridColorInt
+            chart.axisLeft.gridColor = lightGridColorInt
+            
             chart.notifyDataSetChanged()
             chart.invalidate()
         }
