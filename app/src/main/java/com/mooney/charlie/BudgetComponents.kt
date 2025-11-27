@@ -7,6 +7,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -36,6 +37,8 @@ import java.util.Locale
 import kotlin.math.absoluteValue
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.material3.MaterialTheme
+import com.mooney.charlie.ui.theme.CardBackgroundDark
+import com.mooney.charlie.ui.theme.CardBackgroundLight
 import com.mooney.charlie.ui.theme.ExpenseRed
 import com.mooney.charlie.ui.theme.PrimaryLight
 
@@ -95,20 +98,23 @@ fun BudgetSummaryCard(
 
     val isDark = isSystemInDarkTheme()
     // Use primary container color like BalanceCard
-    val cardColor = if (isDark) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.primary
+//    val cardColor = if (isDark) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.primary
+    // This color used in majority elements I think
+    val cardColor = if (isDark) MaterialTheme.colorScheme.primaryContainer else CardBackgroundLight
     
     // ⭐ CHANGED: Use White text in Dark Mode for better contrast against Dark Green, consistent with BalanceCard
-    val contentColor = if (isDark) Color.White else MaterialTheme.colorScheme.onPrimary
-    
-    val remainingTextColor = contentColor
+//    val contentColor = if (isDark) Color.White else MaterialTheme.colorScheme.onPrimary
+    // This color used in majority elements
+    val contentColor = if (isDark) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.primary
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
+            .padding(start = 16.dp, end  = 16.dp, bottom = 8.dp),
         shape = RoundedCornerShape(16.dp), // Match BalanceCard radius
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp), // Match BalanceCard elevation
-        colors = CardDefaults.cardColors(containerColor = cardColor)
+        colors = CardDefaults.cardColors(containerColor = cardColor) // CHANGE COLOR
+        //colors = CardDefaults.cardColors(containerColor = customCardColor)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -126,7 +132,7 @@ fun BudgetSummaryCard(
                     Text(
                         text = "$sign Rp $formattedRemaining / Rp $formattedMonthly",
                         style = MaterialTheme.typography.headlineSmall,
-                        color = remainingTextColor,
+                        color = contentColor,
                         fontWeight = FontWeight.Bold
                     )
                 }

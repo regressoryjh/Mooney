@@ -54,28 +54,32 @@ import com.mooney.charlie.ui.theme.ExpenseRed
 fun BalanceCard(
     modifier: Modifier = Modifier,
     amount: String,
-    color: Color // We determine color internally for theme coherence
 ) {
     val isDark = isSystemInDarkTheme()
     // Light Mode: Use Primary (Deep Green)
     // Dark Mode: Use PrimaryContainer (Dark Green) to avoid "too light" Pastel Green
-    val cardColor = if (isDark) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.primary
+//    val cardColor = if (isDark) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.primary
+    // This color used in majority elements I think
+    val cardColor = if (isDark) MaterialTheme.colorScheme.primaryContainer else CardBackgroundLight
     
     // ⭐ CHANGED: Use White text in Dark Mode for better contrast against Dark Green
-    val contentColor = if (isDark) Color.White else MaterialTheme.colorScheme.onPrimary
+//    val contentColor = if (isDark) Color.White else MaterialTheme.colorScheme.onPrimary
+    // This color used in majority elements
+    val contentColor = if (isDark) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.primary
 
     Card(
         modifier = modifier
             .height(100.dp), // Slightly taller than StatisticsCard
         // ⭐ CHANGED: Use Primary (Green) directly as requested for HomePage cards
         colors = CardDefaults.cardColors(containerColor = cardColor), // Revert to using cardColor for adaptive dark mode
+        //colors = CardDefaults.cardColors(containerColor = customCardColor),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 20.dp, vertical = 12.dp),
+                .padding( vertical = 12.dp),  //horizontal = 20.dp,
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -83,6 +87,7 @@ fun BalanceCard(
                 text = "Balance",
                 style = MaterialTheme.typography.titleLarge,
                 color = contentColor, // Use contentColor for adaptive contrast
+                fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.End
             )
             Spacer(modifier = Modifier.height(4.dp))
@@ -199,7 +204,7 @@ fun DonutChart(
                     // Draw a small line at the separation point (transparent line)
                     // ADJUSTED: Longer line and Thinner line as requested
                     val lineLength = strokeWidth * 2f // Increased length
-                    val lineStartRadius = (diameter / 2f) - (strokeWidth * 0.4f) // Adjusted start
+                    val lineStartRadius = (diameter / 2f) - (strokeWidth) // Adjusted start
                     val lineEndRadius = lineStartRadius + lineLength
 
                     val angleRad = Math.toRadians(endAngle.toDouble())
@@ -362,7 +367,7 @@ fun TransactionListItem(
                     )
                 }
             }
-            // Category (Household) and Note (Weekly cleaning service tip)
+            // Categoryand Note
             Column(
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {

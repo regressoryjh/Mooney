@@ -37,6 +37,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import com.mooney.charlie.ui.theme.*
 
 // --- 1. Top-Level Composable for the New Entry Form ---
 @Composable
@@ -76,17 +77,20 @@ fun NewEntryForm(
     }
 
     val isDark = isSystemInDarkTheme()
+    val customCardColor = if (isDark) FieldBackgroundDark else FieldBackgroundLight
     // Match Balance Card logic: Dark Green in Dark Mode
     // Used for Buttons and Text Field Focus
-    val activeColor = if (isDark) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.primary
+    val activeColor = if (isDark) CardBackgroundDark else MaterialTheme.colorScheme.primary
     // Used for Text on Buttons
-    val buttonContentColor = if (isDark) Color.White else MaterialTheme.colorScheme.onPrimary
+    val buttonContentColor = if (isDark) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onPrimary
 
     // Define colors for TextFields to match the theme
     val textFieldColors = OutlinedTextFieldDefaults.colors(
         focusedBorderColor = activeColor,
         focusedLabelColor = activeColor,
-        cursorColor = activeColor
+        cursorColor = activeColor,
+        focusedContainerColor = customCardColor,
+        unfocusedContainerColor = customCardColor
     )
 
     Surface (
@@ -132,7 +136,9 @@ fun NewEntryForm(
                     )
                 },
                 readOnly = true,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { showDatePicker = true },
                 colors = textFieldColors
             )
 

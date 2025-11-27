@@ -31,6 +31,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import com.mooney.charlie.ui.theme.CardBackgroundDark
+import com.mooney.charlie.ui.theme.CardBackgroundLight
+import com.mooney.charlie.ui.theme.FieldBackgroundDark
+import com.mooney.charlie.ui.theme.FieldBackgroundLight
 
 
 // ui/components/NewEntryComponents.kt
@@ -42,11 +46,13 @@ fun TypeToggleButton(
     readOnly: Boolean = false
 ) {
     val isDark = isSystemInDarkTheme()
+    val customCardColor = if (isDark) FieldBackgroundDark else FieldBackgroundLight
+    
     // Determine the active color based on theme, matching BalanceCard
     // Dark Mode: Use PrimaryContainer (Dark Green)
     // Light Mode: Use Primary (Green)
-    val activeContainerColor = if (isDark) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.primary
-    val activeContentColor = if (isDark) Color.White else MaterialTheme.colorScheme.onPrimary
+    val activeContainerColor = if (isDark) CardBackgroundDark else MaterialTheme.colorScheme.primary
+    val activeContentColor = if (isDark) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onPrimary
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -58,9 +64,9 @@ fun TypeToggleButton(
             // The unselected button will get a "disabled" look.
             val containerColor = if (readOnly) {
                 if (isSelected) activeContainerColor.copy(alpha = 0.5f) // Grayed out selected
-                else MaterialTheme.colorScheme.background // Screen background color for unselected read-only
+                else customCardColor // Unselected read-only
             } else {
-                if (isSelected) activeContainerColor else MaterialTheme.colorScheme.background // Screen background for unselected
+                if (isSelected) activeContainerColor else customCardColor // Unselected
             }
 
             val contentColor = if (readOnly) {
@@ -99,6 +105,7 @@ fun CategoryDropdownMenu(
     var expanded by remember { mutableStateOf(false) }
 
     val isDark = isSystemInDarkTheme()
+    val customCardColor = if (isDark) FieldBackgroundDark else FieldBackgroundLight
     val activeColor = if (isDark) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.primary
 
     ExposedDropdownMenuBox(
@@ -115,7 +122,9 @@ fun CategoryDropdownMenu(
             colors = OutlinedTextFieldDefaults.colors(
                 focusedBorderColor = activeColor,
                 focusedLabelColor = activeColor,
-                cursorColor = activeColor
+                cursorColor = activeColor,
+                focusedContainerColor = customCardColor,
+                unfocusedContainerColor = customCardColor
             ),
             modifier = Modifier
                 .menuAnchor()
@@ -123,7 +132,8 @@ fun CategoryDropdownMenu(
         )
         ExposedDropdownMenu(
             expanded = expanded,
-            onDismissRequest = { expanded = false }
+            onDismissRequest = { expanded = false },
+            containerColor = MaterialTheme.colorScheme.background
         ) {
             currentCategories.forEach { category ->
                 DropdownMenuItem(

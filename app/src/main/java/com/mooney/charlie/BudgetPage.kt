@@ -42,7 +42,7 @@ fun BudgetPage(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 20.dp, start = 16.dp, end = 16.dp, bottom = 0.dp),
+                    .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 32.dp),
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent
                 )
@@ -88,7 +88,7 @@ fun BudgetPage(
                             // TITLE
                             Text(
                                 "Spending Trend",
-                                style = MaterialTheme.typography.titleLarge,
+                                style = MaterialTheme.typography.titleMedium,
                                 modifier = Modifier.padding(bottom = 16.dp)
                             )
                             // LINE CHART

@@ -111,7 +111,7 @@ fun NavigationBar(repository: AppRepository) {
                 exit = slideOutVertically(animationSpec = tween(200)) { it } + fadeOut(animationSpec = tween(200))
             ){
                 NavigationBar(
-                    modifier = Modifier.shadow(elevation = 8.dp),
+                    modifier = Modifier.shadow(elevation = 16.dp),
                     // ⭐ CHANGED: Use MaterialTheme.colorScheme.background to match screen background
                     containerColor = MaterialTheme.colorScheme.background, 
                     windowInsets = NavigationBarDefaults.windowInsets

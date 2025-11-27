@@ -121,7 +121,7 @@ fun HomePage(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 20.dp, start = 16.dp, end = 16.dp, bottom = 36.dp),
+                    .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 32.dp),
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent
                 )
@@ -135,7 +135,6 @@ fun HomePage(
             contentPadding = PaddingValues(
                 start = 16.dp,
                 end = 16.dp,
-                top = 16.dp,
                 bottom = 150.dp
             ),
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -149,8 +148,7 @@ fun HomePage(
                     // 1. PRIMARY BALANCE CARD (Larger) - Using calculated data
                     BalanceCard(
                         modifier = Modifier.fillMaxWidth(),
-                        amount = formatRupiah(currentBalance),
-                        color = MaterialTheme.colorScheme.primary // UPDATED to Theme Primary
+                        amount = formatRupiah(currentBalance)
 
                     )
 
@@ -302,14 +300,14 @@ fun HomePage(
 //                            )
                         }
 
-                        Spacer(modifier = Modifier.height(16.dp))
+                        Spacer(modifier = Modifier.height(32.dp))
 
 //                        Divider(
 //                            modifier = Modifier.fillMaxWidth(),
 //                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
 //                        )
 
-                        Spacer(modifier = Modifier.height(16.dp))
+//                        Spacer(modifier = Modifier.height(16.dp))
 
                         // FILTERED TRANSACTION LIST
                         if (todayTransactions.isEmpty()) {
@@ -350,7 +348,7 @@ fun HomePage(
                                 if (index < todayTransactions.size - 1) {
                                     Spacer(modifier = Modifier.height(12.dp))
                                     // REMOVED DIVIDER HERE
-                                    Spacer(modifier = Modifier.height(12.dp))
+                                    // Spacer(modifier = Modifier.height(12.dp))
                                 }
                             }
                         }

@@ -2,10 +2,8 @@
 
 package com.mooney.charlie
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -13,13 +11,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import java.text.NumberFormat
-import java.util.Locale
-import kotlin.math.abs
 
 @Composable
 fun HistoryPage(
@@ -40,7 +34,7 @@ fun HistoryPage(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 20.dp, start = 16.dp, end = 16.dp, bottom = 32.dp),
+                    .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 32.dp),
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = Color.Transparent
                 )
@@ -80,6 +74,8 @@ fun HistoryPage(
                             DayHeader(group.date, group.totalAmount)
                         }
 
+                        item { Spacer(modifier = Modifier.height(6.dp)) }
+
                         // Daftar Entri Harian
                         itemsIndexed(group.entries) { index, entry ->
                             // ⭐ Tambahkan padding horizontal ke item agar sejajar dengan header
@@ -96,8 +92,15 @@ fun HistoryPage(
                                 )
 
                                 // REMOVED SEPARATOR
+                                if (index < group.entries.size - 1) {
+                                    Spacer(modifier = Modifier.height(6.dp))
+                                    // REMOVED DIVIDER HERE
+                                    // Spacer(modifier = Modifier.height(12.dp))
+                                }
                             }
                         }
+
+                        item { Spacer(modifier = Modifier.height(6.dp)) }
                     }
                 }
             }
