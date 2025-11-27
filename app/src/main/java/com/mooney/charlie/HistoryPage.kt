@@ -95,15 +95,7 @@ fun HistoryPage(
                                     }
                                 )
 
-                                // Show separator ONLY if it's NOT the last item in the group
-                                if (index < group.entries.lastIndex) {
-                                    HorizontalDivider(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(vertical = 0.dp),
-                                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                                    )
-                                }
+                                // REMOVED SEPARATOR
                             }
                         }
                     }

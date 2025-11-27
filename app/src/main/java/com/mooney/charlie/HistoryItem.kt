@@ -182,8 +182,6 @@ fun HistoryItem(
             textAlign = TextAlign.End
         )
     }
-    // Opsional: Divider di bawah setiap item
-    Divider(color = MaterialTheme.colorScheme.surfaceVariant, thickness = 0.5.dp)
 
     if (showDeleteDialog) {
         AlertDialog(

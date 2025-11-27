@@ -45,6 +45,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.mooney.charlie.data.Entry
+import com.mooney.charlie.ui.theme.CardBackgroundDark
+import com.mooney.charlie.ui.theme.CardBackgroundLight
 import com.mooney.charlie.ui.theme.IncomeGreen
 import com.mooney.charlie.ui.theme.ExpenseRed
 
@@ -77,7 +79,7 @@ fun BalanceCard(
         ) {
             Text(
                 text = "Balance",
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleLarge,
                 color = MaterialTheme.colorScheme.onPrimary,
                 textAlign = TextAlign.End
             )
@@ -122,7 +124,7 @@ fun StatisticsCard(
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = amount,
-                style = MaterialTheme.typography.titleSmall,
+                style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface,
                 fontWeight = FontWeight.SemiBold
             )
@@ -147,7 +149,11 @@ fun DonutChart(
 ) {
     val entries = data.values.toList()
     val totalFloat = totalAmount.toFloat()
-    val separatorColor = MaterialTheme.colorScheme.surface
+
+    val isDark = isSystemInDarkTheme()
+    val customCardColor = if (isDark) CardBackgroundDark else CardBackgroundLight
+    val separatorColor = customCardColor
+
 
     Box(modifier = modifier, contentAlignment = Alignment.Center) {
         Canvas(modifier = Modifier.fillMaxSize()) {

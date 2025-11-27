@@ -207,16 +207,6 @@ fun HomePage(
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
                             }
-//                            IconButton(
-//                                onClick = { },
-//                                modifier = Modifier.size(28.dp)
-//                            ) {
-//                                Icon(
-//                                    imageVector = Icons.Default.MoreVert,
-//                                    contentDescription = "More options",
-//                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-//                                )
-//                            }
                         }
 
                         Spacer(modifier = Modifier.height(24.dp))
@@ -359,10 +349,7 @@ fun HomePage(
 
                                 if (index < todayTransactions.size - 1) {
                                     Spacer(modifier = Modifier.height(12.dp))
-                                    Divider(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-                                    )
+                                    // REMOVED DIVIDER HERE
                                     Spacer(modifier = Modifier.height(12.dp))
                                 }
                             }
