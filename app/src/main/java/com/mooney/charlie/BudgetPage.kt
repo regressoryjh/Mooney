@@ -31,8 +31,7 @@ fun BudgetPage(
                 title = {
                     Text(
                         text = "Monthly Budget",
-                        style = MaterialTheme.typography.headlineLarge,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                        style = MaterialTheme.typography.headlineLarge
                     )
                 },
                 modifier = Modifier

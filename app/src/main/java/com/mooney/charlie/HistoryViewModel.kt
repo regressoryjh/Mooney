@@ -8,25 +8,39 @@ import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import androidx.lifecycle.viewModelScope
+import com.mooney.charlie.data.* // <--- NEW IMPORT
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 // Tambahkan impor untuk date/time handling
-import java.time.LocalDate
 import java.util.UUID
 
-class HistoryViewModel : ViewModel() {
+class HistoryViewModel(private val repository: AppRepository) : ViewModel() { // <--- ADD REPOSITORY
 
     private val _groupedHistory = MutableStateFlow<List<HistoryGroup>>(emptyList())
     val groupedHistory: StateFlow<List<HistoryGroup>> = _groupedHistory.asStateFlow()
 
     init {
-        loadHistoryWithRunningBalance()
+        // Collect All Entries flow from the repository
+        viewModelScope.launch {
+            repository.getAllEntries().collectLatest { entries ->
+                loadHistoryWithRunningBalance(entries) // <--- Pass the fetched list
+            }
+        }
     }
 
-    private fun loadHistoryWithRunningBalance() {
+    // Update the function to accept the list of entries
+    private fun loadHistoryWithRunningBalance(allEntries: List<Entry>) {
         // 1. Siapkan List dan Urutkan Data
         // Urutkan data berdasarkan tanggal dari TERLAMA ke TERBARU
-        val sortedEntries = BudgetEntries
-            .sortedBy { LocalDate.parse(it.date) }
+        val sortedEntries = allEntries
+            .sortedWith(
+                compareBy<Entry> { LocalDate.parse(it.date, DateTimeFormatter.ISO_LOCAL_DATE) }
+                    .thenBy { it.id } // For stable sort on the same day
+            )
             .toMutableList()
 
         // 2. Hitung Running Balance (Akumulasi Saldo)
@@ -68,6 +82,13 @@ class HistoryViewModel : ViewModel() {
         }
 
         _groupedHistory.value = historyList
+    }
+
+    // Add delete functionality
+    fun deleteEntry(entry: Entry) {
+        viewModelScope.launch {
+            repository.deleteEntry(entry)
+        }
     }
 
     // TODO: Tambahkan fungsi filter di sini (misalnya, filterByCategory, filterByMonth)

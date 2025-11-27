@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.mooney.charlie.data.*
 
 // Define the items that will appear in the Bottom Navigation Bar
 enum class BottomNavDestination(
@@ -56,7 +57,7 @@ enum class BottomNavDestination(
 
 
 @Composable
-fun NavigationBar(modifier: Modifier = Modifier) {
+fun NavigationBar(repository: AppRepository) {
     val navController = rememberNavController()
     // Set the start destination using the enum
     val startDestination = BottomNavDestination.HOME
@@ -89,7 +90,6 @@ fun NavigationBar(modifier: Modifier = Modifier) {
     }
 
     Scaffold(
-        modifier = modifier,
         bottomBar = {
             AnimatedVisibility(
                 visible = showBottomBar,
@@ -103,8 +103,11 @@ fun NavigationBar(modifier: Modifier = Modifier) {
                             // Gunakan status yang DIPERBARUI oleh LaunchedEffect
                             selected = selectedDestinationIndex == index,
                             onClick = {
-                                // Navigasi saat item Bottom Bar diklik
-                                if (selectedDestinationIndex != index) {
+                                // Special handling for NEW to avoid clearing back stack
+                                if (destination.route == Destinations.NEW) {
+                                    navController.navigate(destination.route)
+                                } else if (selectedDestinationIndex != index) {
+                                    // Standard bottom nav behavior
                                     navController.navigate(route = destination.route) {
                                         // Logika popUpTo dan launchSingleTop
                                         popUpTo(navController.graph.startDestinationId) {
@@ -113,8 +116,6 @@ fun NavigationBar(modifier: Modifier = Modifier) {
                                         launchSingleTop = true
                                         restoreState = true
                                     }
-                                    // TIDAK perlu mengupdate selectedDestinationIndex di sini,
-                                    // LaunchedEffect akan melakukannya secara otomatis.
                                 }
                             },
                             icon = {
@@ -133,6 +134,7 @@ fun NavigationBar(modifier: Modifier = Modifier) {
         // Call your existing NavGraph here
         NavGraph(
             navController = navController,
+            repository = repository, // <--- PASS REPOSITORY
             modifier = Modifier.padding(contentPadding) // Apply padding to avoid content being under the bar
         )
     }

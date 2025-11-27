@@ -31,12 +31,13 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.graphics.Color
 
 
-// ui/components/FormComponents.kt
+// ui/components/NewEntryComponents.kt
 
 @Composable
 fun TypeToggleButton(
     selectedType: EntryType,
-    onTypeSelected: (EntryType) -> Unit
+    onTypeSelected: (EntryType) -> Unit,
+    readOnly: Boolean = false
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -44,13 +45,31 @@ fun TypeToggleButton(
     ) {
         EntryType.entries.forEach { type ->
             val isSelected = selectedType == type
+            // If readOnly is true, determine colors based on whether this button is the selected one.
+            // The unselected button will get a "disabled" look.
+            val containerColor = if (readOnly) {
+                if (isSelected) Color(0xFF4A588B).copy(alpha = 0.5f) // Grayed out selected
+                else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f) // Grayed out unselected
+            } else {
+                if (isSelected) Color(0xFF4A588B) else MaterialTheme.colorScheme.primaryContainer
+            }
+
+            val contentColor = if (readOnly) {
+                if (isSelected) MaterialTheme.colorScheme.onTertiary.copy(alpha = 0.7f)
+                else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+            } else {
+                if (isSelected) MaterialTheme.colorScheme.onTertiary else MaterialTheme.colorScheme.onPrimaryContainer
+            }
+
             OutlinedButton(
-                onClick = { onTypeSelected(type) },
+                onClick = { if (!readOnly) onTypeSelected(type) },
+                // Make it appear unclickable if readOnly (though onClick handles the logic)
+                enabled = !readOnly, 
                 colors = ButtonDefaults.outlinedButtonColors(
-//                    containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
-//                    contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
-                    containerColor = if (isSelected) Color(0xFF4A588B) else MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = if (isSelected) MaterialTheme.colorScheme.onTertiary else MaterialTheme.colorScheme.onPrimaryContainer
+                    containerColor = containerColor,
+                    contentColor = contentColor,
+                    disabledContainerColor = containerColor, // Keep custom color even when disabled
+                    disabledContentColor = contentColor
                 ),
                 modifier = Modifier.weight(1f)
             ) {
@@ -60,7 +79,7 @@ fun TypeToggleButton(
     }
 }
 
-// ui/components/FormComponents.kt
+// ui/components/NewEntryComponents.kt
 
 @Composable
 fun CategoryDropdownMenu(
@@ -103,7 +122,7 @@ fun CategoryDropdownMenu(
     }
 }
 
-// ui/components/FormComponents.kt
+// ui/components/NewEntryComponents.kt
 
 @Composable
 fun DatePickerDialog(

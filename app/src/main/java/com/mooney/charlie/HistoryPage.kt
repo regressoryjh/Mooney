@@ -15,17 +15,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-//import com.mooney.charlie.ui.components.HistoryItem
-//import com.mooney.charlie.viewmodels.HistoryViewModel
 import java.text.NumberFormat
 import java.util.Locale
+import kotlin.math.abs
 
 @Composable
 fun HistoryPage(
     navController: NavHostController,
-    viewModel: HistoryViewModel = viewModel()
+    viewModel: HistoryViewModel
 ) {
     val groupedData by viewModel.groupedHistory.collectAsState()
 
@@ -50,38 +48,45 @@ fun HistoryPage(
     ) { paddingValues ->
         Column(modifier = Modifier.padding(paddingValues)) {
 
-//            // 1. Filtering Tool Placeholder
-//            // TODO: Ganti ini dengan Dropdown/DatePicker untuk filter
-//            Card(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(horizontal = 16.dp, vertical = 16.dp)
-//            ) {
-//                Text(
-//                    text = "Filtering Tool Placeholder (Coming Soon)",
-//                    modifier = Modifier.padding(16.dp),
-//                    style = MaterialTheme.typography.bodyMedium
-//                )
-//            }
-
             // 2. Item List Grouped by Day
             LazyColumn(
                 // ⭐ Hapus contentPadding(horizontal) di sini
                 contentPadding = PaddingValues(top = 0.dp),
                 modifier = Modifier.fillMaxSize()
             ) {
-                groupedData.forEach { group ->
-                    // Sticky Header: Tanggal
-                    stickyHeader {
-                        // Header sudah memiliki padding internal (16.dp)
-                        DayHeader(group.date, group.totalAmount)
+                if (groupedData.isEmpty()) {
+                    // Use item {} for non-list content inside LazyColumn
+                    item {
+                        // EMPTY STATE MESSAGE
+                        Text(
+                            text = "There are no transactions to show.",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 16.dp)
+                        )
                     }
+                } else {
+                    groupedData.forEach { group ->
+                        // Sticky Header: Tanggal
+                        stickyHeader {
+                            // Header sudah memiliki padding internal (16.dp)
+                            DayHeader(group.date, group.totalAmount)
+                        }
 
-                    // Daftar Entri Harian
-                    items(group.entries) { entry ->
-                        // ⭐ Tambahkan padding horizontal ke item agar sejajar dengan header
-                        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                            HistoryItem(entry = entry)
+                        // Daftar Entri Harian
+                        items(group.entries) { entry ->
+                            // ⭐ Tambahkan padding horizontal ke item agar sejajar dengan header
+                            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                                HistoryItem(
+                                    entry = entry,
+                                    onDeleteClick = {
+                                        viewModel.deleteEntry(it)
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -101,7 +106,7 @@ fun DayHeader(date: String, totalAmount: Long) {
     val sign = if (totalAmount < 0) "-" else ""
 
     // Gunakan nilai absolut (abs) untuk memformat angka tanpa tanda
-    val formattedTotal = numberFormat.format(kotlin.math.abs(totalAmount))
+    val formattedTotal = numberFormat.format(abs(totalAmount))
 
     Surface(
         color = MaterialTheme.colorScheme.surfaceContainerHigh,

@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package com.mooney.charlie
 
 import androidx.compose.foundation.layout.*
@@ -16,15 +18,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-//import com.mooney.charlie.data.EntryType
-//import com.mooney.charlie.data.FinancialEntry
+import com.mooney.charlie.data.*
 import java.text.NumberFormat
 import java.util.Locale
 
 @Composable
-fun HistoryItem(entry: FinancialEntry) {
+fun HistoryItem(
+    entry: Entry,
+    onDeleteClick: (Entry) -> Unit = {} // Make it optional for preview/default
+) {
 
     var showMenu by remember { mutableStateOf(false) }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     // Tentukan warna berdasarkan tipe
     val amountColor = when (entry.type) {
@@ -102,8 +107,8 @@ fun HistoryItem(entry: FinancialEntry) {
                 DropdownMenuItem(
                     text = { Text("Delete") },
                     onClick = {
-                        // TODO: Implement Delete logic here (e.g., show confirmation dialog)
                         showMenu = false
+                        showDeleteDialog = true
                     }
                 )
             }
@@ -111,4 +116,27 @@ fun HistoryItem(entry: FinancialEntry) {
     }
     // Opsional: Divider di bawah setiap item
     Divider(color = MaterialTheme.colorScheme.surfaceVariant, thickness = 0.5.dp)
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Delete Transaction") },
+            text = { Text("Are you sure you want to delete this transaction?") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onDeleteClick(entry)
+                        showDeleteDialog = false
+                    }
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 }
