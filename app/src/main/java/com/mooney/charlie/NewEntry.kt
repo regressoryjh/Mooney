@@ -29,7 +29,7 @@ fun NewEntry(
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 32.dp)
+                    .padding(top = 8.dp, start = 16.dp, end = 16.dp, bottom = 24.dp),
                 // dont change the padding its my prefered padding
             )
             NewEntryForm(
