@@ -78,6 +78,16 @@ The project follows a clean architecture approach:
     *   `MainActivity.kt`: App entry point and navigation host.
     *   `HomePage.kt`, `BudgetPage.kt`, `HistoryPage.kt`: Main screen composables.
 
-## License
+## Technical Audit & Quality Assessment
 
-[Add License Here, e.g., MIT]
+A technical evaluation was conducted to identify vulnerabilities, logic gaps, and areas for optimization. The following issues have been documented for future resolution:
+
+* **[Critical] Data Integrity:** A logic error where negative balances are incorrectly displayed as positive values due to improper formatting.
+* **System Reliability:** "Silent Failures" in the save process; the UI navigates away even if data validation fails.
+* **Business Logic:** Absence of date constraints allowing future-dated transactions, causing balance-reporting inconsistencies.
+* **User Experience (UX):**
+    * Graph rendering logic fails for single-point data entries (Day 1).
+    * Lack of visual thousand-separators in numerical inputs, increasing the risk of user entry error.
+* **Input Robustness:** Potential for numerical overflow and lack of range constraints (Min/Max) in budget entries.
+
+For a detailed analysis of these findings and the proposed code-level solutions, please refer to the **[Technical Evaluation & Improvement Report (Bahasa Indonesia)](https://drive.google.com/file/d/1RN2JvpczCkvnCxMP8A1lpDT-1gzqyBwK/view?usp=sharing)**.
