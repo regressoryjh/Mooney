@@ -87,7 +87,7 @@ A comprehensive breakdown of the Mooney lifecycle, from initial concept to final
 * **Visual Design**: Lo-Fi wireframes and high-fidelity screenflows.
 * **Implementation**: Translation of design assets into functional Jetpack Compose code.
 
-> **Full Documentation:** [Mooney Development Case Study (Bahasa Indonesia)](https://www.canva.com/design/DAG2qfaPtDY/wuoN7Mun-6m2Oa5U7FCv-w/view?utm_content=DAG2qfaPtDY&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h7f4dae89d6)
+> For the full documentation (including a video demo, design process, and storyboards), please refer to the [Mooney Development Case Study (Bahasa Indonesia)](https://www.canva.com/design/DAG2qfaPtDY/wuoN7Mun-6m2Oa5U7FCv-w/view)
 
 ## Technical Audit & Quality Assessment
 
@@ -101,4 +101,4 @@ A technical evaluation was conducted to identify vulnerabilities, logic gaps, an
     * Lack of visual thousand-separators in numerical inputs, increasing the risk of user entry error.
 * **Input Robustness:** Potential for numerical overflow and lack of range constraints (Min/Max) in budget entries.
 
-> For a detailed analysis of these findings and the proposed code-level solutions, please refer to the [Technical Evaluation & Improvement Report (Bahasa Indonesia)](https://drive.google.com/file/d/1RN2JvpczCkvnCxMP8A1lpDT-1gzqyBwK/view?usp=sharing).
+> For a detailed analysis of these findings and the proposed code-level solutions, please refer to the [Technical Evaluation & Improvement Report (Bahasa Indonesia)](https://drive.google.com/file/d/1RN2JvpczCkvnCxMP8A1lpDT-1gzqyBwK/view).
